@@ -1,0 +1,57 @@
+FUNCTION_BLOCK model
+
+VAR_INPUT
+	ruzgarHizi : REAL;
+	yukseklik : REAL;
+	kanatBoyu : REAL;
+END_VAR
+
+VAR_OUTPUT
+	uretilenEnerji : REAL;
+END_VAR
+
+FUZZIFY ruzgarHizi
+	TERM dusuk := (0, 1)(14, 0);
+	TERM ideal := (12, 0)(14, 1)(25, 1)(30, 0);
+	TERM fazla := (25, 0)(30, 1)(40, 1);
+END_FUZZIFY
+
+FUZZIFY yukseklik
+	TERM az := (25, 1)(40, 1)(50, 0);
+	TERM orta := (40, 0)(65, 1)(100, 0);
+	TERM yuksek := (75, 0)(100, 1)(125, 1);
+END_FUZZIFY
+
+FUZZIFY kanatBoyu
+	TERM kucuk := (10, 1)(20, 0);
+	TERM orta := (15, 0)(20, 1)(35, 1)(40, 0);
+	TERM buyuk := (35, 0)(50, 1)(60, 1);
+END_FUZZIFY
+
+DEFUZZIFY uretilenEnerji
+	TERM az := (0, 1)(1900, 0);
+	TERM orta := (1600, 0)(2800, 1)(4000, 0);
+	TERM cok := (3000, 0)(4000, 1)(5000, 1);
+	
+	METHOD : RM;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK kuralblok1
+	AND : MIN;
+	ACT : MIN;
+	ACCU : MAX;
+	
+	RULE 1: IF ruzgarHizi IS dusuk THEN uretilenEnerji IS az;
+	RULE 2: IF ruzgarHizi IS ideal AND yukseklik IS az AND kanatBoyu IS kucuk THEN uretilenEnerji IS az;
+	RULE 3: IF ruzgarHizi IS ideal AND yukseklik IS orta AND kanatBoyu IS kucuk THEN uretilenEnerji IS az;
+	RULE 4: IF ruzgarHizi IS ideal AND yukseklik IS yuksek AND kanatBoyu IS kucuk THEN uretilenEnerji IS orta;
+	RULE 5: IF ruzgarHizi IS ideal AND yukseklik IS az AND kanatBoyu IS orta THEN uretilenEnerji IS az;
+	RULE 6: IF ruzgarHizi IS ideal AND yukseklik IS orta AND kanatBoyu IS orta THEN uretilenEnerji IS orta;
+	RULE 7: IF ruzgarHizi IS ideal AND yukseklik IS yuksek AND kanatBoyu IS orta THEN uretilenEnerji IS cok;
+	RULE 8: IF ruzgarHizi IS ideal AND yukseklik IS az AND kanatBoyu IS buyuk THEN uretilenEnerji IS az;
+	RULE 9: IF ruzgarHizi IS ideal AND yukseklik IS orta AND kanatBoyu IS buyuk THEN uretilenEnerji IS orta;
+	RULE 10: IF ruzgarHizi IS ideal AND yukseklik IS yuksek AND kanatBoyu IS buyuk THEN uretilenEnerji IS cok;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
